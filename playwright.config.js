@@ -1,6 +1,6 @@
 // @ts-check
 import { defineConfig, devices } from '@playwright/test';
-
+//EXAMPLE
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -50,7 +50,7 @@ export default defineConfig({
       use: { ...devices['Desktop Safari'] },
     },
 
-    /* Test against mobile viewports. */
+    /* Test against mobile viewports. */ 
     // {
     //   name: 'Mobile Chrome',
     //   use: { ...devices['Pixel 5'] },
