@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {"lint": "eslint . --ext .ts,.tsx,.js,.jsx", "format:check": "prettier --check .", "type-check": "tsc --noEmit", "test": "jest", "test:unit": "jest --testPathPattern=unit", "test:integration": "jest --testPathPattern=integration", "test:coverage": "jest --coverage", "build": "npm run build:prod || tsc || webpack --mode=production", "analyze": "npm run build && npx webpack-bundle-analyzer dist/stats.json", "perf:budget": "bundlesize"},
   "keywords": [],
   "author": "",
   "license": "ISC",
