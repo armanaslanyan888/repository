@@ -5,6 +5,7 @@ on:
     branches: [master, develop]
   pull_request:
     branches: [master]
+  workflow_dispatch:
 
 jobs:
   test:
@@ -36,3 +37,57 @@ jobs:
         with:
           name: test-report
           path: playwright-report/
+
+  summary:
+    name: Pipeline Summary
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+    
+    steps:
+      - name: Create Summary
+        run: |
+          echo "##  CI Pipeline Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Author:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Results:" >> $GITHUB_STEP_SUMMARY
+          echo "- Playwright Tests: ${{ needs.test.result }}" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ needs.test.result }}" == "success" ]]; then
+            echo "✅ **All tests passed!** Ready for production." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Tests failed.** Please check the logs." >> $GITHUB_STEP_SUMMARY
+          fi
+
+  notify:
+    name: Notify Team
+    runs-on: ubuntu-latest
+    needs: test
+    if: failure()
+    
+    steps:
+      - name: Create Issue on Failure
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: ' CI Pipeline Failed',
+              body: `
+              ## Pipeline Failure Alert
+              
+              **Branch:** ${{ github.ref_name }}
+              **Commit:** ${{ github.sha }}
+              **Author:** ${{ github.actor }}
+              **Workflow:** ${{ github.workflow }}
+              
+              **Action Required:** Please check the [failed workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) and fix the issues.
+              
+              cc: @${{ github.actor }}
+              `,
+              labels: ['bug', 'ci-failure']
+            })
