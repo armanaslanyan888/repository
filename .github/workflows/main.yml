@@ -3,12 +3,12 @@ name: CI/CD Pipeline
 on:
   push:
     branches: 
-      - main
       - master
       - develop
+      - 'feature/**'
+      - 'refactor/**'
   pull_request:
     branches: 
-      - main
       - master
     types: [opened, synchronize, reopened]
   workflow_dispatch:
@@ -233,7 +233,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [unit-tests, e2e-tests, build]
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     environment: staging
     
     steps:
@@ -249,7 +249,7 @@ jobs:
         run: |
           echo " Deploying to staging environment..."
           # Add your deployment commands here
-          echo "✅ Staging deployment completed"
+          echo " Staging deployment completed"
 
   # Job 7: Integration Tests (Post-Deploy)
   integration-tests:
@@ -257,7 +257,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: deploy-staging
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/master'
     
     steps:
       - name: Checkout Repository
